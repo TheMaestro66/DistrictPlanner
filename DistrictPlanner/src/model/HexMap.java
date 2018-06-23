@@ -1,7 +1,11 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import model.yields.YieldBundle;
 
 public class HexMap {
 	
@@ -23,6 +27,20 @@ public class HexMap {
 	// TODO remove this method?
 	public Tile getTile(int row, int column) {
 		return rows.get(row).get(column);
+	}
+	
+	public Set<Tile> adjacentTiles(Tile center) {
+		Set<Tile> set = new HashSet<>();
+		
+		for (HexDirection direction : HexDirection.values()) {
+			try {
+				set.add(translate(center, direction));
+			} catch (OffMapException e) {
+//				System.out.println(e.getMessage());
+			}
+		}
+		
+		return set;
 	}
 
 	public Tile translate(Tile from, HexDirection direction) {
@@ -60,25 +78,29 @@ public class HexMap {
 		try {
 			row = rows.get(destinationRowIndex);
 		} catch (IndexOutOfBoundsException e) {
-			boolean top = destinationRowIndex < 0;
-			throw new RuntimeException("Would run off " + (top ? "top" : "bottom") + " edge of map.");
+			throw new OffMapException(destinationRowIndex < 0 ? "top" : "bottom");
 		}
 		try {
 			tile = row.get(destinationIndex);
 		} catch (IndexOutOfBoundsException e) {
-			boolean left = destinationIndex < 0;
-			throw new RuntimeException("Would run off " + (left ? "left" : "right") + " edge of map.");
+			throw new OffMapException(destinationIndex < 0 ? "left" : "right");
 		}
 		return tile;
 	}
 	
+	public YieldBundle evaluate(Tile tile) {
+		return tile.evaluate(adjacentTiles(tile));
+	}
+	
 	public void consoleOutput() {
+		TileDecorator decorator = new TileDecorator();
+		
 		int index = 0;
 		for (List<Tile> row : rows) {
 			if ((index++ % 2 == 0) == firstCornerRounded)
 				System.out.print(" ");
 			for (Tile tile : row) {
-				System.out.print(tile.getConsoleString() + " ");
+				System.out.print(decorator.decorate(tile) + " ");
 			}
 			System.out.println();
 		}
@@ -118,4 +140,17 @@ public class HexMap {
 		}
 	}
 	
+	public static class OffMapException extends RuntimeException {
+
+		/**  */
+		private static final long serialVersionUID = 8454755943301343840L;
+		
+		public OffMapException() {
+			super("Would run off edge of map.");
+		}
+		
+		public OffMapException(String topBottomLeftRight) {
+			super("Would run off " + topBottomLeftRight + " edge of map.");
+		}
+	}
 }

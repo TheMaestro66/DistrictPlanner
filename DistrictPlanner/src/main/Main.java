@@ -11,16 +11,16 @@ public class Main {
 		
 		
 		// debugging, POC:
-		Tile tile = map.getTile(0,0);
-		while (true) {
-			tile.setConsoleString("X");
-			try {
-				tile = map.translate(tile, HexMap.HexDirection.BOTTOM_RIGHT);
-			} catch (Exception e) {
-//				System.out.println("Ran off, presumably");
-				break;
-			}
-		}
+//		Tile tile = map.getTile(0,0);
+//		while (true) {
+//			tile.setConsoleString("X");
+//			try {
+//				tile = map.translate(tile, HexMap.HexDirection.BOTTOM_RIGHT);
+//			} catch (Exception e) {
+////				System.out.println("Ran off, presumably");
+//				break;
+//			}
+//		}
 		map.consoleOutput();
 	}
 
